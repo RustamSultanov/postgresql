@@ -1,0 +1,40 @@
+---
+postgres_url: https://yum.postgresql.org/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm
+
+# ------------------------------------------------
+# PostgreSQL database cluster path
+# ------------------------------------------------
+postgres_pgdata: /var/lib/pgsql/10/data/
+
+
+# -----------------------------
+# Database and users settings
+# -----------------------------
+postgres_init_db_name: db01
+postgres_init_user_name: user01
+postgres_init_user_password: user01password
+
+
+# ------------------------------------------------
+# PostgreSQL configuration file - postgresql.conf
+# ------------------------------------------------
+
+# - Connection Settings -
+postgres_conf_max_connections: 100
+
+# - Memory -
+postgres_conf_shared_buffers: 512MB
+postgres_conf_work_mem: 32MB
+
+
+# ------------------------------------------------
+# PostgreSQL configuration file - pg_hba.conf
+# ------------------------------------------------
+
+postgres_hba_configurations:
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+ - 'local   all             {{ postgres_init_user_name }}           md5'
+ - 'local   all             all                                     peer'
+ - 'host    all             all             0.0.0.0/0               md5'
+ - 'host    all             all             ::0/0                   md5'
+

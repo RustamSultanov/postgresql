@@ -1,0 +1,68 @@
+---
+- name: Add psql Repository for centos7
+  yum:
+    name: "{{ postgres_url }}"
+    state: present
+
+
+- name: Install Postgres 10 Server
+  yum:
+    name: ['postgresql10-server', 'python-psycopg2']
+    state: present
+
+
+- name: Check whether a database cluster has already been created
+  stat:
+    path: "{{ postgres_pgdata }}/PG_VERSION"
+  register: pgsql_data
+
+
+- name: Initialize PGDATA
+  command: /usr/pgsql-10/bin/postgresql-10-setup initdb
+  when: not pgsql_data.stat.exists
+
+
+- name: Configure connection rules and postgres
+  template: src={{ item.src }} dest={{ postgres_pgdata }}/{{ item.src | regex_replace(".j2") }}
+  with_items:
+    - { src: "postgresql.conf.j2" }
+    - { src: "pg_hba.conf.j2" }
+  notify: Restart PostgreSQL
+
+
+- name: Start PostgreSQL
+  service:
+    name: postgresql-10
+    state: started
+    enabled: yes
+
+
+- name: Create database
+  postgresql_db:
+    name: "{{ postgres_init_db_name }}"
+    state: present
+  become: true
+  become_user: postgres
+
+
+- name: Create user
+  postgresql_user:
+    name: "{{ postgres_init_user_name }}"
+    password: "{{ postgres_init_user_password }}"
+    encrypted: yes
+    state: present
+  become: true
+  become_user: postgres
+
+
+- name: Create postgresql_privs for user
+  postgresql_privs:
+    db: "{{ postgres_init_db_name }}"
+    privs: ALL
+    type: database
+    role: "{{ postgres_init_user_name }}"
+    state: present
+  become: true
+  become_user: postgres
+
+

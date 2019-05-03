@@ -1,0 +1,17 @@
+galaxy_info:
+  author: RustamSultanov
+  description: Installs and configures PostgreSQL 10 on CentOS 7
+
+  min_ansible_version: 2.4
+
+  platforms:
+    - name: Centos
+      versions:
+        - 7
+
+  galaxy_tags:
+    - database
+    - db
+    - postgres
+    - postgresql
+    - centos
